@@ -87,3 +87,8 @@ func (c *Contract) GetStaker() (string, error) {
 
 	return result.Messages[0]["Data"].(string), nil
 }
+
+func (c *Contract) Unstake() error {
+	_, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Unstake"}}, "", c.signer)
+	return err
+}
