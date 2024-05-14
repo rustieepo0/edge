@@ -40,12 +40,12 @@ type GetUploadResponse struct {
 }
 
 func (c *Contract) GetUpload(dataItemId string) (*GetUploadResponse, error) {
-	mId, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Upload"}, {Name: "DataItemId", Value: dataItemId}}, "", c.signer)
+	mID, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Upload"}, {Name: "DataItemId", Value: dataItemId}}, "", c.signer)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := c.ao.ReadResult(c.process, mId)
+	result, err := c.ao.ReadResult(c.process, mID)
 	if err != nil {
 		return nil, err
 	}
@@ -56,11 +56,11 @@ func (c *Contract) GetUpload(dataItemId string) (*GetUploadResponse, error) {
 		return nil, err
 	}
 
-	return &response, err
+	return &response, nil
 }
 
-func (c *Contract) Notify(dataItemId string, transactionId string) error {
-	_, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Notify"}, {Name: "DataItemId", Value: dataItemId}, {Name: "TransactionId", Value: transactionId}}, "", c.signer)
+func (c *Contract) Notify(dataItemId string, transactionID string) error {
+	_, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Notify"}, {Name: "DataItemId", Value: dataItemId}, {Name: "TransactionId", Value: transactionID}}, "", c.signer)
 	return err
 }
 
@@ -75,12 +75,12 @@ func (c *Contract) Stake(url string) error {
 }
 
 func (c *Contract) GetStaker() (string, error) {
-	mId, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Staked"}}, "", c.signer)
+	mID, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Staked"}}, "", c.signer)
 	if err != nil {
 		return "", err
 	}
 
-	result, err := c.ao.ReadResult(c.process, mId)
+	result, err := c.ao.ReadResult(c.process, mID)
 	if err != nil {
 		return "", err
 	}
@@ -91,4 +91,28 @@ func (c *Contract) GetStaker() (string, error) {
 func (c *Contract) Unstake() error {
 	_, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Unstake"}}, "", c.signer)
 	return err
+}
+
+type GetBalanceResponse struct {
+	Balance string `json:"balance"`
+}
+
+func (c *Contract) GetBalance() (string, error) {
+	mID, err := c.ao.SendMessage(c.process, "", []types.Tag{{Name: "Action", Value: "Balance"}}, "", c.signer)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := c.ao.ReadResult(c.process, mID)
+	if err != nil {
+		return "", err
+	}
+
+	var response GetBalanceResponse
+	err = json.Unmarshal([]byte(result.Messages[0]["Data"].(string)), &response)
+	if err != nil {
+		return "", err
+	}
+
+	return response.Balance, nil
 }
